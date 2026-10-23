@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free AI Video Studio</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #10121c;
+      color: white;
+      padding: 20px;
+    }
+    header {
+      text-align: center;
+      padding: 24px 10px;
+    }
+    h1 { color: #a78bfa; }
+    .panel {
+      max-width: 650px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #1d2233;
+      border-radius: 16px;
+    }
+    textarea, input, select, button {
+      width: 100%;
+      padding: 13px;
+      margin: 8px 0;
+      border-radius: 9px;
+      border: 1px solid #454b65;
+      font-size: 16px;
+    }
+    textarea, input, select {
+      background: #111522;
+      color: white;
+    }
+    button {
+      background: #7c3aed;
+      color: white;
+      font-weight: bold;
+      border: 0;
+    }
+    .note { color: #c2c7d8; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎬 Free AI Video Studio</h1>
+    <p>Apne ideas ko video project mein badlein</p>
+  </header>
+
+  <main class="panel">
+    <h2>Script to Video</h2>
+    <label for="script">Apni video ki script likhein</label>
+    <textarea id="script" rows="6"
+      placeholder="Yahan apni story ya script likhein..."></textarea>
+
+    <label for="duration">Video duration</label>
+    <select id="duration">
+      <option>30 seconds</option>
+      <option>1 minute</option>
+      <option>5 minutes</option>
+      <option>10 minutes</option>
+      <option>100 minutes</option>
+    </select>
+
+    <label for="quality">Video quality</label>
+    <select id="quality">
+      <option>720p</option>
+      <option>1080p</option>
+    </select>
+
+    <button onclick="makePlan()">Create Video Plan</button>
+    <div id="result" class="note"></div>
+  </main>
+
+  <main class="panel">
+    <h2>Image to Video</h2>
+    <input type="file" accept="image/*">
+    <p class="note">
+      Image upload option tayyar hai. AI animation feature
+      baad mein connect karna hoga.
+    </p>
+  </main>
+
+  <script>
+    function makePlan() {
+      const script = document.getElementById("script").value.trim();
+      const duration = document.getElementById("duration").value;
+      const quality = document.getElementById("quality").value;
+      const result = document.getElementById("result");
+
+      if (!script) {
+        result.textContent = "Pehle apni video script likhein.";
+        return;
+      }
+
+      const scenes = script.split(/[.!?।\n]+/)
+        .map(s => s.trim()).filter(Boolean);
+
+      result.innerHTML = "<h3>Video Plan Ready!</h3>" +
+        "<p>Duration: " + duration + "</p>" +
+        "<p>Quality target: " + quality + "</p>" +
+        "<p>Total scenes: " + scenes.length + "</p>";
+
+      scenes.forEach((scene, i) => {
+        const p = document.createElement("p");
+        p.textContent = "Scene " + (i + 1) + ": " + scene;
+        result.appendChild(p);
+      });
+
+      const download = document.createElement("button");
+      download.textContent = "Download Video Plan";
+      download.onclick = () => {
+        const blob = new Blob(
+          [JSON.stringify({script, duration, quality, scenes}, null, 2)],
+          {type: "application/json"}
+        );
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "video-plan.json";
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+      result.appendChild(download);
+    }
+  </script>
+</body>
+</html>
+
