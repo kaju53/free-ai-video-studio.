@@ -2,536 +2,335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#171329">
-  <title>Free AI Video Studio</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      color: #fff;
-      background: linear-gradient(135deg, #171329, #28204b, #101827);
-      min-height: 100vh;
-    }
-
-    header {
-      text-align: center;
-      padding: 30px 16px;
-      background: rgba(0, 0, 0, 0.2);
-      border-bottom: 1px solid #443965;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: clamp(28px, 7vw, 42px);
-      color: #d9a8ff;
-    }
-
-    header p {
-      color: #d6d0e8;
-      line-height: 1.5;
-    }
-
-    main {
-      width: min(900px, 100%);
-      margin: auto;
-      padding: 18px;
-    }
-
-    .panel {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid #51436e;
-      border-radius: 18px;
-      padding: 20px;
-      margin: 18px 0;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    h2 {
-      margin-top: 0;
-      color: #e2b9ff;
-    }
-
-    label {
-      display: block;
-      margin: 14px 0 7px;
-      font-weight: bold;
-    }
-
-    textarea,
-    select,
-    input[type="text"] {
-      width: 100%;
-      padding: 13px;
-      color: #fff;
-      background: #201b35;
-      border: 1px solid #69588d;
-      border-radius: 10px;
-      font: inherit;
-    }
-
-    textarea {
-      min-height: 130px;
-      resize: vertical;
-    }
-
-    select option {
-      background: #201b35;
-    }
-
-    button,
-    .download {
-      display: inline-block;
-      margin-top: 14px;
-      padding: 12px 18px;
-      border: 0;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #b56aff, #7585ff);
-      color: #fff;
-      font-weight: bold;
-      font-size: 15px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .secondary {
-      background: #39304f;
-      border: 1px solid #766496;
-    }
-
-    .hint,
-    .status {
-      color: #d4cbe6;
-      font-size: 14px;
-      line-height: 1.6;
-      overflow-wrap: anywhere;
-    }
-
-    .scene {
-      padding: 12px;
-      margin: 10px 0;
-      background: #211b36;
-      border-left: 4px solid #b56aff;
-      border-radius: 8px;
-    }
-
-    .scene strong {
-      color: #e2b9ff;
-    }
-
-    #generatedImage,
-    #uploadedPreview {
-      display: block;
-      width: 100%;
-      max-height: 550px;
-      object-fit: contain;
-      margin-top: 16px;
-      border-radius: 12px;
-      background: #110e1d;
-    }
-
-    #generatedImage:empty {
-      display: none;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    footer {
-      text-align: center;
-      padding: 25px 15px;
-      color: #b9b0cb;
-      font-size: 13px;
-    }
-  </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/@pollinations/ui@0.1.0-alpha.19/dist/connect.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kids Hub - Rhyme Maker</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:14px;background:#fff3fa;color:#38304c;font-family:Arial,sans-serif}
+main{max-width:950px;margin:auto}
+h1{text-align:center;color:#e94f9a;margin:8px 0}
+.sub{text-align:center}
+.panel{background:white;border-radius:18px;padding:15px;margin:14px 0;box-shadow:0 4px 18px #e7cce0}
+label{display:block;font-weight:bold;margin-top:12px}
+input,textarea,select,button{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font-size:16px;margin-top:6px}
+textarea{min-height:100px;resize:vertical}
+button{border:0;background:#ec589d;color:white;font-weight:bold;cursor:pointer}
+button.secondary{background:#8066d9}
+button:disabled{opacity:.55}
+canvas{display:block;width:100%;height:auto;border-radius:14px;background:#8bdfff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.small{font-size:13px;color:#71677c;line-height:1.5}
+#status{font-size:14px;line-height:1.5}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
+</style>
 </head>
-
 <body>
-  <header>
-    <h1>✨ Free AI Video Studio</h1>
-    <p>Create scene plans, generate AI images and prepare your video ideas.</p>
-  </header>
+<main>
+<h1>🌈 Kids Hub Rhyme Maker</h1>
+<p class="sub">Create colorful cartoon rhymes for free!</p>
 
-  <main>
-    <section class="panel">
-      <h2>🎬 Script to Video Planner</h2>
-      <p class="hint">
-        Apni story ya script likho. Ye tool usko scenes mein divide karega.
-      </p>
+<section class="panel">
+<label>Video title</label>
+<input id="title" value="Happy Little Friends">
 
-      <label for="scriptInput">Your Script</label>
-      <textarea id="scriptInput"
-        placeholder="Ek baar ki baat hai, ek chhota sa bandar jungle mein rehta tha..."></textarea>
+<label>Rhyme lines — one line per scene</label>
+<textarea id="lyrics">The happy sun is shining bright
+Little birds are taking flight
+Clap your hands and turn around
+Happy friends are dancing now</textarea>
 
-      <label for="duration">Video Duration</label>
-      <select id="duration">
-        <option value="30">30 seconds</option>
-        <option value="60" selected>1 minute</option>
-        <option value="120">2 minutes</option>
-        <option value="300">5 minutes</option>
-      </select>
+<div class="grid">
+<div>
+<label>Scene duration (seconds)</label>
+<select id="duration">
+<option value="3">3 seconds</option>
+<option value="5" selected>5 seconds</option>
+<option value="8">8 seconds</option>
+</select>
+</div>
+<div>
+<label>Cartoon theme</label>
+<select id="theme">
+<option value="garden">Flower Garden</option>
+<option value="farm">Happy Farm</option>
+<option value="space">Magic Space</option>
+<option value="ocean">Under the Sea</option>
+</select>
+</div>
+</div>
+<button id="build">✨ Create Scenes</button>
+<p class="small">Each rhyme line becomes a scene. You can preview the animation and record the complete video.</p>
+</section>
 
-      <label for="quality">Target Quality</label>
-      <select id="quality">
-        <option value="720p">720p HD</option>
-        <option value="1080p" selected>1080p Full HD</option>
-      </select>
+<section class="panel">
+<canvas id="screen" width="1280" height="720"></canvas>
+<p id="sceneInfo">Scene 1</p>
+<div class="grid">
+<button class="secondary" id="prev">◀ Previous</button>
+<button class="secondary" id="next">Next ▶</button>
+</div>
+<div class="grid">
+<button id="play">▶ Play All Scenes</button>
+<button id="pause" class="secondary">⏸ Pause</button>
+</div>
+<button id="record">🔴 Export Video</button>
+<button id="stop" class="secondary" disabled>Stop Export</button>
+<p id="status">Ready. Create scenes to start.</p>
+<a id="download"></a>
+</section>
+<p class="small">Free browser animation — no AI API key required. Exports WebM where supported. These are original, simple 2D cartoon drawings, not photorealistic 3D AI animation.</p>
+</main>
 
-      <button id="planButton" type="button">Create Scene Plan</button>
+<script>
+const $=id=>document.getElementById(id);
+const canvas=$("screen"),ctx=canvas.getContext("2d");
+const W=canvas.width,H=canvas.height;
+let lines=[],scene=0,playing=false,recording=false;
+let raf=0,recorder=null,stream=null,chunks=[];
+let sceneStart=performance.now(),recordStart=0;
+let duration=5,theme="garden";
 
-      <div id="planStatus" class="status" aria-live="polite"></div>
-      <div id="sceneResults"></div>
+function makeScenes(){
+  lines=$("lyrics").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  if(!lines.length)lines=["Let's sing and dance today!"];
+  scene=0;duration=Number($("duration").value);
+  theme=$("theme").value;
+  $("status").textContent=lines.length+" scenes created.";
+  $("download").textContent="";
+  draw(performance.now());updateInfo();
+}
+function textFit(text,max){
+  return text.length>max?text.slice(0,max-1)+"…":text;
+}
+function circle(x,y,r,color){
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle=color;ctx.fill();
+}
+function hill(y,color,shift){
+  ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(0,H);
+  ctx.lineTo(0,y);
+  ctx.quadraticCurveTo(W*.24,y-130+shift,W*.48,y+10);
+  ctx.quadraticCurveTo(W*.75,y-130-shift,W,y+5);
+  ctx.lineTo(W,H);ctx.fill();
+}
+function cloud(x,y,s){
+  circle(x,y,30*s,"white");
+  circle(x+35*s,y-18*s,38*s,"white");
+  circle(x+72*s,y,28*s,"white");
+}
+function character(cx,base,t,color,kind){
+  let bob=Math.abs(Math.sin(t*3+kind))*24;
+  let y=base-bob;
+  // body
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.ellipse(cx,y+62,45,59,0,0,Math.PI*2);ctx.fill();
+  // legs
+  ctx.strokeStyle="#704b59";ctx.lineWidth=13;ctx.lineCap="round";
+  ctx.beginPath();
+  ctx.moveTo(cx-18,y+100);ctx.lineTo(cx-28,y+133);
+  ctx.moveTo(cx+18,y+100);ctx.lineTo(cx+28,y+133);
+  ctx.stroke();
+  // head
+  circle(cx,y,57,"#ffd7b6");
+  // hair
+  circle(cx-35,y-42,25,"#75432d");
+  circle(cx,y-53,29,"#75432d");
+  circle(cx+34,y-40,23,"#75432d");
+  // ears
+  circle(cx-57,y+2,12,"#ffd7b6");
+  circle(cx+57,y+2,12,"#ffd7b6");
+  // eyes
+  circle(cx-19,y-5,6,"#382d3a");
+  circle(cx+19,y-5,6,"#382d3a");
+  // cheeks
+  circle(cx-34,y+13,9,"#ff9bad");
+  circle(cx+34,y+13,9,"#ff9bad");
+  // smile
+  ctx.beginPath();ctx.arc(cx,y+9,18,.15,Math.PI-.15);
+  ctx.strokeStyle="#a34b4b";ctx.lineWidth=4;ctx.stroke();
+  // waving arms
+  const wave=Math.sin(t*5+kind)*23;
+  ctx.strokeStyle=color;ctx.lineWidth=18;ctx.lineCap="round";
+  ctx.beginPath();
+  ctx.moveTo(cx-35,y+35);ctx.lineTo(cx-73,y+7+wave);
+  ctx.moveTo(cx+35,y+35);ctx.lineTo(cx+73,y+7-wave);
+  ctx.stroke();
+}
+function animal(x,y,t,color,kind){
+  const hop=Math.abs(Math.sin(t*3+kind))*15;
+  y-=hop;
+  // ears
+  circle(x-27,y-34,16,color);circle(x+27,y-34,16,color);
+  // face
+  circle(x,y,42,color);
+  circle(x-13,y-5,4,"#333");circle(x+13,y-5,4,"#333");
+  circle(x,y+12,9,"#f58d9f");
+  ctx.beginPath();ctx.arc(x,y+8,13,.2,Math.PI-.2);
+  ctx.strokeStyle="#75433c";ctx.lineWidth=3;ctx.stroke();
+}
+function background(t){
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,theme==="space"?"#30236b":theme==="ocean"?"#36bde8":"#62d3ff");
+  g.addColorStop(1,theme==="space"?"#b48bfa":theme==="ocean"?"#8cf4ed":"#e4fbff");
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 
-      <button id="downloadPlan" class="secondary hidden" type="button">
-        Download Scene Plan JSON
-      </button>
-    </section>
-
-    <section class="panel" id="ai-image-panel">
-      <h2>🎨 AI Image Generator</h2>
-      <p class="hint">
-        Connect your Pollinations account to generate an image.
-        Image generation may use your available Pollen balance.
-      </p>
-
-      <label>Connect Account</label>
-
-      <!-- Replace the app-key value with your own public pk_ App Key -->
-      <polli-connect
-        id="polli-connect"
-        app-key="pk_HkYTfTgoKsTayLAE"
-        budget="1"
-        expiry="1">
-      </polli-connect>
-
-      <p id="connectStatus" class="status" aria-live="polite">
-        Connect your account, then enter an image prompt.
-      </p>
-
-      <label for="imagePrompt">Describe Your Image</label>
-      <textarea id="imagePrompt"
-        placeholder="Cute 3D cartoon baby elephant in a colorful jungle, children's animation, vibrant pastel colors"></textarea>
-
-      <button id="generateImage" type="button" disabled>
-        Generate AI Image
-      </button>
-
-      <p id="imageStatus" class="status" aria-live="polite"></p>
-
-      <img id="generatedImage" class="hidden" alt="Generated AI artwork">
-
-      <a id="downloadImage" class="download hidden"
-        href="#" download="ai-image.png">Download Image</a>
-    </section>
-
-    <section class="panel">
-      <h2>🖼️ Image to Video — Preview</h2>
-      <p class="hint">
-        Upload an image to preview it before planning your video.
-        This section does not create a moving video yet.
-      </p>
-
-      <label for="imageUpload">Choose an Image</label>
-      <input id="imageUpload" type="file" accept="image/*">
-
-      <img id="uploadedPreview" class="hidden" alt="Your uploaded image preview">
-
-      <p id="uploadStatus" class="status"></p>
-    </section>
-
-    <section class="panel">
-      <h2>🚀 Next Features</h2>
-      <p class="hint">
-        Planned features: Hindi AI voice, automatic subtitles, scene editing,
-        image-to-video generation and MP4 export. These features need to be
-        connected to suitable generation services before they can work.
-      </p>
-    </section>
-  </main>
-
-  <footer>
-    Free AI Video Studio · Built for creative ideas ❤️
-  </footer>
-
-  <script>
-    "use strict";
-
-    // SCRIPT TO VIDEO: create a downloadable scene plan.
-    let currentPlan = [];
-
-    const scriptInput = document.getElementById("scriptInput");
-    const planButton = document.getElementById("planButton");
-    const planStatus = document.getElementById("planStatus");
-    const sceneResults = document.getElementById("sceneResults");
-    const downloadPlan = document.getElementById("downloadPlan");
-
-    function splitIntoScenes(text, totalSeconds) {
-      const sentences = text
-        .replace(/\n+/g, " ")
-        .match(/[^.!?।]+[.!?।]?/g);
-
-      const cleanSentences = (sentences || [])
-        .map(sentence => sentence.trim())
-        .filter(Boolean);
-
-      if (cleanSentences.length === 0) {
-        return [];
-      }
-
-      const sceneCount = Math.min(
-        cleanSentences.length,
-        Math.max(1, Math.ceil(totalSeconds / 5))
-      );
-
-      const scenes = Array.from(
-        { length: sceneCount },
-        () => []
-      );
-
-      cleanSentences.forEach((sentence, index) => {
-        const sceneIndex = Math.min(
-          sceneCount - 1,
-          Math.floor(index * sceneCount / cleanSentences.length)
-        );
-
-        scenes[sceneIndex].push(sentence);
-      });
-
-      const sceneDuration = totalSeconds / sceneCount;
-
-      return scenes.map((parts, index) => ({
-        scene: index + 1,
-        duration_seconds: Math.round(sceneDuration),
-        narration: parts.join(" "),
-        visual_prompt:
-          "Create a visual for this story: " + parts.join(" ") +
-          ". Colorful cinematic animation, clear composition."
-      }));
+  if(theme==="space"){
+    for(let i=0;i<45;i++){
+      circle((i*197)%W,(i*83)%400,2+(i%3),"#fff6a8");
     }
-
-    planButton.addEventListener("click", () => {
-      const text = scriptInput.value.trim();
-      const totalSeconds = Number(
-        document.getElementById("duration").value
-      );
-      const quality = document.getElementById("quality").value;
-
-      if (!text) {
-        planStatus.textContent = "Please enter your script first.";
-        sceneResults.replaceChildren();
-        downloadPlan.classList.add("hidden");
-        return;
-      }
-
-      currentPlan = splitIntoScenes(text, totalSeconds);
-
-      sceneResults.replaceChildren();
-
-      currentPlan.forEach(scene => {
-        const card = document.createElement("div");
-        card.className = "scene";
-
-        const heading = document.createElement("strong");
-        heading.textContent =
-          "Scene " + scene.scene +
-          " · " + scene.duration_seconds + " seconds";
-
-        const narration = document.createElement("p");
-        narration.textContent = scene.narration;
-
-        const promptLabel = document.createElement("p");
-        promptLabel.textContent = "Visual prompt: " + scene.visual_prompt;
-
-        card.append(heading, narration, promptLabel);
-        sceneResults.appendChild(card);
-      });
-
-      currentPlan = currentPlan.map(scene => ({
-        ...scene,
-        target_quality: quality
-      }));
-
-      planStatus.textContent =
-        "Created " + currentPlan.length +
-        " scenes. This is a scene plan, not a rendered video.";
-
-      downloadPlan.classList.remove("hidden");
-    });
-
-    downloadPlan.addEventListener("click", () => {
-      if (!currentPlan.length) return;
-
-      const blob = new Blob(
-        [JSON.stringify(currentPlan, null, 2)],
-        { type: "application/json" }
-      );
-
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-
-      link.href = url;
-      link.download = "video-scene-plan.json";
-      link.click();
-
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    });
-
-    // POLLINATIONS CONNECT: obtain a user-authorized API key.
-    const connectElement = document.getElementById("polli-connect");
-    const connectStatus = document.getElementById("connectStatus");
-    const generateButton = document.getElementById("generateImage");
-    const imageStatus = document.getElementById("imageStatus");
-    const generatedImage = document.getElementById("generatedImage");
-    const downloadImage = document.getElementById("downloadImage");
-    const imagePrompt = document.getElementById("imagePrompt");
-
-    let userApiKey = null;
-    let imageRequestNumber = 0;
-
-    function updateConnection(apiKey) {
-      userApiKey = apiKey || null;
-      generateButton.disabled = !userApiKey;
-
-      connectStatus.textContent = userApiKey
-        ? "Connected. You can generate an image."
-        : "Not connected. Use the Connect button above.";
+    ctx.save();ctx.translate(1030,150);
+    ctx.rotate(t*.15);circle(0,0,72,"#ffdb74");
+    ctx.strokeStyle="#e9a8ff";ctx.lineWidth=14;
+    ctx.beginPath();ctx.ellipse(0,0,112,30,.3,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+    hill(535,"#7459cb",20);
+    hill(600,"#483a99",40);
+  }else if(theme==="ocean"){
+    circle(1100,110,53,"#fff3a0");
+    for(let i=0;i<8;i++){
+      circle((i*173+Math.sin(t+i)*25)%W,180+(i%3)*100,8+i%4*4,"#d4fbff");
     }
-
-    customElements.whenDefined("polli-connect")
-      .then(() => {
-        connectElement.addEventListener("change", () => {
-          updateConnection(connectElement.apiKey);
-        });
-
-        // Check if a connection already exists.
-        updateConnection(connectElement.apiKey);
-      })
-      .catch(() => {
-        connectStatus.textContent =
-          "Could not load the Connect component. Check your internet connection.";
-      });
-
-    // IMAGE GENERATION
-    generateButton.addEventListener("click", async () => {
-      const prompt = imagePrompt.value.trim();
-
-      if (!userApiKey) {
-        imageStatus.textContent = "Please connect your account first.";
-        return;
+    hill(550,"#28c4c0",20);
+    hill(630,"#087fae",40);
+    for(let i=0;i<9;i++){
+      ctx.strokeStyle="#e2b3ff";ctx.lineWidth=7;
+      ctx.beginPath();ctx.moveTo(i*150+40,670);
+      ctx.quadraticCurveTo(i*150+5,610,i*150+55,600);
+      ctx.stroke();
+    }
+  }else{
+    circle(1080,105,62,"#ffdf5a");
+    cloud(150,135,1.1);cloud(490,90,.8);cloud(800,165,.9);
+    hill(510,theme==="farm"?"#86d96d":"#8ae780",20);
+    hill(610,theme==="farm"?"#45bc69":"#38c96b",35);
+    if(theme==="farm"){
+      for(let i=0;i<6;i++){
+        const fx=100+i*210;
+        ctx.fillStyle="#d9a16c";ctx.fillRect(fx,450,12,145);
+        ctx.fillStyle="#c87954";ctx.beginPath();
+        ctx.moveTo(fx-40,455);ctx.lineTo(fx+6,400);ctx.lineTo(fx+52,455);ctx.fill();
+        ctx.fillStyle="#fff0be";ctx.fillRect(fx-23,462,58,75);
       }
-
-      if (!prompt) {
-        imageStatus.textContent = "Please enter an image description.";
-        return;
+    }else{
+      for(let i=0;i<15;i++){
+        const fx=(i*87+35)%W,fy=590+(i%3)*32;
+        circle(fx,fy,10,"#ff83bc");circle(fx+9,fy-5,9,"#ffdf60");
+        circle(fx+4,fy+5,5,"#fff9d9");
       }
-
-      const requestNumber = ++imageRequestNumber;
-
-      generateButton.disabled = true;
-      imageStatus.textContent =
-        "Generating image... Please wait. This may take some time.";
-
-      generatedImage.classList.add("hidden");
-      downloadImage.classList.add("hidden");
-
-      try {
-        const url =
-          "https://gen.pollinations.ai/image/" +
-          encodeURIComponent(prompt) +
-          "?model=flux&width=1024&height=1024";
-
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Authorization": "Bearer " + userApiKey
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            "Image service returned status " + response.status +
-            ". Check your account, available Pollen and service limits."
-          );
-        }
-
-        const imageBlob = await response.blob();
-
-        if (!imageBlob.type.startsWith("image/")) {
-          throw new Error("The service did not return an image.");
-        }
-
-        const imageUrl = URL.createObjectURL(imageBlob);
-
-        if (requestNumber !== imageRequestNumber) {
-          URL.revokeObjectURL(imageUrl);
-          return;
-        }
-
-        generatedImage.src = imageUrl;
-        generatedImage.classList.remove("hidden");
-
-        downloadImage.href = imageUrl;
-        downloadImage.classList.remove("hidden");
-
-        imageStatus.textContent = "Image generated successfully!";
-      } catch (error) {
-        imageStatus.textContent =
-          "Generation failed: " + error.message +
-          " If this continues, check the official Pollinations documentation.";
-      } finally {
-        if (requestNumber === imageRequestNumber) {
-          generateButton.disabled = !userApiKey;
-        }
+    }
+  }
+}
+function draw(now){
+  const t=(now-sceneStart)/1000;
+  background(t);
+  const line=lines[scene]||"Let's sing together!";
+  // Main characters change by theme
+  if(theme==="ocean"){
+    animal(300,440,t,"#ffa9c8",1);
+    animal(640,450,t,"#ffe477",2);
+    animal(950,440,t,"#9ce4ff",3);
+  }else{
+    character(340,420,t,"#ff75b5",1);
+    character(640,420,t+1,"#ffbc4f",2);
+    character(940,420,t+2,"#9d8bff",3);
+    if(theme==="farm")animal(1080,510,t,"#fff0dc",2);
+  }
+  // Title
+  ctx.fillStyle="rgba(255,255,255,.9)";
+  ctx.beginPath();ctx.roundRect(90,25,1100,75,24);ctx.fill();
+  ctx.fillStyle="#773a96";ctx.textAlign="center";
+  ctx.font="bold 39px Arial";
+  ctx.fillText(textFit($("title").value,44),640,75);
+  // Subtitle strip
+  ctx.fillStyle="rgba(255,255,255,.94)";
+  ctx.beginPath();ctx.roundRect(90,620,1100,70,22);ctx.fill();
+  ctx.fillStyle="#5c367f";ctx.font="bold 30px Arial";
+  ctx.fillText(textFit(line,62),640,665);
+  if(playing){
+    if(now-sceneStart>=duration*1000){
+      scene++;
+      if(scene>=lines.length){
+        scene=0;
+        if(!recording)playing=false;
       }
-    });
-
-    // IMAGE UPLOAD PREVIEW
-    const imageUpload = document.getElementById("imageUpload");
-    const uploadedPreview = document.getElementById("uploadedPreview");
-    const uploadStatus = document.getElementById("uploadStatus");
-
-    let uploadedImageUrl = null;
-
-    imageUpload.addEventListener("change", () => {
-      const file = imageUpload.files[0];
-
-      if (uploadedImageUrl) {
-        URL.revokeObjectURL(uploadedImageUrl);
-        uploadedImageUrl = null;
-      }
-
-      if (!file) {
-        uploadedPreview.classList.add("hidden");
-        uploadStatus.textContent = "";
-        return;
-      }
-
-      if (!file.type.startsWith("image/")) {
-        uploadStatus.textContent = "Please choose a valid image file.";
-        uploadedPreview.classList.add("hidden");
-        return;
-      }
-
-      uploadedImageUrl = URL.createObjectURL(file);
-      uploadedPreview.src = uploadedImageUrl;
-      uploadedPreview.classList.remove("hidden");
-      uploadStatus.textContent =
-        "Image ready for preview. Video generation is not connected yet.";
-    });
-  </script>
+      sceneStart=now;updateInfo();
+    }
+    raf=requestAnimationFrame(draw);
+  }
+}
+function updateInfo(){
+  $("sceneInfo").textContent="Scene "+(scene+1)+" of "+lines.length;
+}
+function renderCurrent(){
+  cancelAnimationFrame(raf);
+  playing=false;
+  draw(performance.now());
+}
+$("build").onclick=makeScenes;
+$("prev").onclick=()=>{
+  if(!lines.length)return;
+  scene=(scene-1+lines.length)%lines.length;
+  sceneStart=performance.now();renderCurrent();updateInfo();
+};
+$("next").onclick=()=>{
+  if(!lines.length)return;
+  scene=(scene+1)%lines.length;
+  sceneStart=performance.now();renderCurrent();updateInfo();
+};
+$("play").onclick=()=>{
+  if(!lines.length)makeScenes();
+  cancelAnimationFrame(raf);
+  scene=0;sceneStart=performance.now();playing=true;
+  requestAnimationFrame(draw);
+  $("status").textContent="Playing all scenes.";
+};
+$("pause").onclick=()=>{
+  playing=false;cancelAnimationFrame(raf);
+  $("status").textContent="Animation paused.";
+};
+$("record").onclick=()=>{
+  if(!canvas.captureStream||!window.MediaRecorder){
+    $("status").textContent="This browser does not support recording. Try another modern browser.";
+    return;
+  }
+  if(!lines.length)makeScenes();
+  chunks=[];scene=0;duration=Number($("duration").value);
+  sceneStart=performance.now();playing=true;recording=true;
+  cancelAnimationFrame(raf);
+  requestAnimationFrame(draw);
+  stream=canvas.captureStream(30);
+  let mime="video/webm;codecs=vp9";
+  if(!MediaRecorder.isTypeSupported(mime))mime="video/webm";
+  try{recorder=new MediaRecorder(stream,{mimeType:mime});}
+  catch(e){recorder=new MediaRecorder(stream);}
+  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  recorder.onstop=()=>{
+    recording=false;playing=false;cancelAnimationFrame(raf);
+    stream.getTracks().forEach(track=>track.stop());
+    const blob=new Blob(chunks,{type:"video/webm"});
+    const url=URL.createObjectURL(blob);
+    const a=$("download");a.href=url;a.download="kids-rhyme.webm";
+    a.textContent="⬇ Download your video";
+    a.style.display="block";a.style.marginTop="15px";
+    $("status").textContent="Video ready! Tap Download your video.";
+    $("record").disabled=false;$("stop").disabled=true;
+  };
+  recorder.start();
+  $("record").disabled=true;$("stop").disabled=false;
+  $("status").textContent="Recording your scenes...";
+  recordStart=Date.now();
+  const total=lines.length*duration*1000;
+  const timer=setInterval(()=>{
+    if(!recorder||recorder.state!=="recording"){clearInterval(timer);return;}
+    if(Date.now()-recordStart>=total){clearInterval(timer);recorder.stop();}
+  },250);
+};
+$("stop").onclick=()=>{
+  if(recorder&&recorder.state==="recording")recorder.stop();
+};
+makeScenes();
+</script>
 </body>
 </html>
