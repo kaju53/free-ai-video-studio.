@@ -46,7 +46,110 @@
     .note { color: #c2c7d8; line-height: 1.6; }
   </style>
 </head>
-<body>
+
+  <!-- Pollinations Connect: user-authorized image generation -->
+  <section class="panel" id="ai-image-panel">
+    <h2>🎨 AI Image Generator</h2>
+    <p class="note">
+      Connect your Pollinations account to authorize image generation.
+      Check the budget before approving.
+    </p>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@pollinations/ui@0.1.0-alpha.19/dist/connect.js">
+    </script>
+
+    <polli-connect
+      id="polli-connect"
+      app-key="pk_HkYTfTgoKsTayLAE"
+      budget="1"
+      expiry="1">
+    </polli-connect>
+
+    <label for="image-prompt">Describe your image</label>
+    <textarea id="image-prompt" rows="3"
+      placeholder="A cute 3D pink bunny in a colorful garden..."></textarea>
+
+    <button id="generate-image" type="button" disabled>
+      Generate AI Image
+    </button>
+
+    <p id="image-status" class="note">
+      Connect your account first.
+    </p>
+
+    <img id="generated-image" alt="Your generated AI image"
+      style="display:none;width:100%;border-radius:12px;margin-top:12px">
+
+    <a id="download-image" style="display:none;color:#c4b5fd"
+      download="ai-image.jpg">Download Image</a>
+  </section>
+
+  <script>
+    (() => {
+      const connect = document.getElementById("polli-connect");
+      const button = document.getElementById("generate-image");
+      const prompt = document.getElementById("image-prompt");
+      const status = document.getElementById("image-status");
+      const img = document.getElementById("generated-image");
+      const download = document.getElementById("download-image");
+      let userApiKey = null;
+
+      connect.addEventListener("change", () => {
+        userApiKey = connect.apiKey || null;
+        button.disabled = !userApiKey;
+        status.textContent = userApiKey
+          ? "Connected. Check your approved budget before generating."
+          : "Not connected.";
+      });
+
+      button.addEventListener("click", async () => {
+        const description = prompt.value.trim();
+        if (!userApiKey || !description) {
+          status.textContent = "Connect your account and enter a prompt.";
+          return;
+        }
+
+        button.disabled = true;
+        status.textContent = "Generating image... Please wait.";
+        img.style.display = "none";
+        download.style.display = "none";
+
+        try {
+          const url = new URL(
+            "https://gen.pollinations.ai/image/" +
+            encodeURIComponent(description)
+          );
+          url.searchParams.set("model", "flux");
+          url.searchParams.set("width", "1024");
+          url.searchParams.set("height", "1024");
+
+          const response = await fetch(url, {
+            headers: { "Authorization": "Bearer " + userApiKey }
+          });
+
+          if (!response.ok) {
+            throw new Error("API error " + response.status);
+          }
+
+          const blob = await response.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          img.src = objectUrl;
+          img.style.display = "block";
+          download.href = objectUrl;
+          download.style.display = "inline-block";
+          status.textContent = "Image ready!";
+        } catch (error) {
+          status.textContent =
+            "Image generation failed. Check your approved access, balance, and model availability.";
+        } finally {
+          button.disabled = !userApiKey;
+        }
+      });
+    })();
+                               </script>
+  <body>
   <header>
     <h1>🎬 Free AI Video Studio</h1>
     <p>Apne ideas ko video project mein badlein</p>
