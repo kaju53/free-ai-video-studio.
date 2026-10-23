@@ -1,237 +1,537 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#171329">
   <title>Free AI Video Studio</title>
+
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #10121c;
-      color: white;
-      padding: 20px;
+      color: #fff;
+      background: linear-gradient(135deg, #171329, #28204b, #101827);
+      min-height: 100vh;
     }
+
     header {
       text-align: center;
-      padding: 24px 10px;
+      padding: 30px 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid #443965;
     }
-    h1 { color: #a78bfa; }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(28px, 7vw, 42px);
+      color: #d9a8ff;
+    }
+
+    header p {
+      color: #d6d0e8;
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(900px, 100%);
+      margin: auto;
+      padding: 18px;
+    }
+
     .panel {
-      max-width: 650px;
-      margin: 20px auto;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid #51436e;
+      border-radius: 18px;
       padding: 20px;
-      background: #1d2233;
-      border-radius: 16px;
+      margin: 18px 0;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
-    textarea, input, select, button {
+
+    h2 {
+      margin-top: 0;
+      color: #e2b9ff;
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 7px;
+      font-weight: bold;
+    }
+
+    textarea,
+    select,
+    input[type="text"] {
       width: 100%;
       padding: 13px;
-      margin: 8px 0;
-      border-radius: 9px;
-      border: 1px solid #454b65;
-      font-size: 16px;
+      color: #fff;
+      background: #201b35;
+      border: 1px solid #69588d;
+      border-radius: 10px;
+      font: inherit;
     }
-    textarea, input, select {
-      background: #111522;
-      color: white;
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
     }
-    button {
-      background: #7c3aed;
-      color: white;
-      font-weight: bold;
+
+    select option {
+      background: #201b35;
+    }
+
+    button,
+    .download {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 12px 18px;
       border: 0;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #b56aff, #7585ff);
+      color: #fff;
+      font-weight: bold;
+      font-size: 15px;
+      text-decoration: none;
+      cursor: pointer;
     }
-    .note { color: #c2c7d8; line-height: 1.6; }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .secondary {
+      background: #39304f;
+      border: 1px solid #766496;
+    }
+
+    .hint,
+    .status {
+      color: #d4cbe6;
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .scene {
+      padding: 12px;
+      margin: 10px 0;
+      background: #211b36;
+      border-left: 4px solid #b56aff;
+      border-radius: 8px;
+    }
+
+    .scene strong {
+      color: #e2b9ff;
+    }
+
+    #generatedImage,
+    #uploadedPreview {
+      display: block;
+      width: 100%;
+      max-height: 550px;
+      object-fit: contain;
+      margin-top: 16px;
+      border-radius: 12px;
+      background: #110e1d;
+    }
+
+    #generatedImage:empty {
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px 15px;
+      color: #b9b0cb;
+      font-size: 13px;
+    }
   </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@pollinations/ui@0.1.0-alpha.19/dist/connect.js"></script>
 </head>
 
-  <!-- Pollinations Connect: user-authorized image generation -->
-  <section class="panel" id="ai-image-panel">
-    <h2>🎨 AI Image Generator</h2>
-    <p class="note">
-      Connect your Pollinations account to authorize image generation.
-      Check the budget before approving.
-    </p>
-
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/@pollinations/ui@0.1.0-alpha.19/dist/connect.js">
-    </script>
-
-    <polli-connect
-      id="polli-connect"
-      app-key="pk_HkYTfTgoKsTayLAE"
-      budget="1"
-      expiry="1">
-    </polli-connect>
-
-    <label for="image-prompt">Describe your image</label>
-    <textarea id="image-prompt" rows="3"
-      placeholder="A cute 3D pink bunny in a colorful garden..."></textarea>
-
-    <button id="generate-image" type="button" disabled>
-      Generate AI Image
-    </button>
-
-    <p id="image-status" class="note">
-      Connect your account first.
-    </p>
-
-    <img id="generated-image" alt="Your generated AI image"
-      style="display:none;width:100%;border-radius:12px;margin-top:12px">
-
-    <a id="download-image" style="display:none;color:#c4b5fd"
-      download="ai-image.jpg">Download Image</a>
-  </section>
-
-  <script>
-    (() => {
-      const connect = document.getElementById("polli-connect");
-      const button = document.getElementById("generate-image");
-      const prompt = document.getElementById("image-prompt");
-      const status = document.getElementById("image-status");
-      const img = document.getElementById("generated-image");
-      const download = document.getElementById("download-image");
-      let userApiKey = null;
-
-      connect.addEventListener("change", () => {
-        userApiKey = connect.apiKey || null;
-        button.disabled = !userApiKey;
-        status.textContent = userApiKey
-          ? "Connected. Check your approved budget before generating."
-          : "Not connected.";
-      });
-
-      button.addEventListener("click", async () => {
-        const description = prompt.value.trim();
-        if (!userApiKey || !description) {
-          status.textContent = "Connect your account and enter a prompt.";
-          return;
-        }
-
-        button.disabled = true;
-        status.textContent = "Generating image... Please wait.";
-        img.style.display = "none";
-        download.style.display = "none";
-
-        try {
-          const url = new URL(
-            "https://gen.pollinations.ai/image/" +
-            encodeURIComponent(description)
-          );
-          url.searchParams.set("model", "flux");
-          url.searchParams.set("width", "1024");
-          url.searchParams.set("height", "1024");
-
-          const response = await fetch(url, {
-            headers: { "Authorization": "Bearer " + userApiKey }
-          });
-
-          if (!response.ok) {
-            throw new Error("API error " + response.status);
-          }
-
-          const blob = await response.blob();
-          const objectUrl = URL.createObjectURL(blob);
-          img.src = objectUrl;
-          img.style.display = "block";
-          download.href = objectUrl;
-          download.style.display = "inline-block";
-          status.textContent = "Image ready!";
-        } catch (error) {
-          status.textContent =
-            "Image generation failed. Check your approved access, balance, and model availability.";
-        } finally {
-          button.disabled = !userApiKey;
-        }
-      });
-    })();
-                               </script>
-  <body>
+<body>
   <header>
-    <h1>🎬 Free AI Video Studio</h1>
-    <p>Apne ideas ko video project mein badlein</p>
+    <h1>✨ Free AI Video Studio</h1>
+    <p>Create scene plans, generate AI images and prepare your video ideas.</p>
   </header>
 
-  <main class="panel">
-    <h2>Script to Video</h2>
-    <label for="script">Apni video ki script likhein</label>
-    <textarea id="script" rows="6"
-      placeholder="Yahan apni story ya script likhein..."></textarea>
+  <main>
+    <section class="panel">
+      <h2>🎬 Script to Video Planner</h2>
+      <p class="hint">
+        Apni story ya script likho. Ye tool usko scenes mein divide karega.
+      </p>
 
-    <label for="duration">Video duration</label>
-    <select id="duration">
-      <option>30 seconds</option>
-      <option>1 minute</option>
-      <option>5 minutes</option>
-      <option>10 minutes</option>
-      <option>100 minutes</option>
-    </select>
+      <label for="scriptInput">Your Script</label>
+      <textarea id="scriptInput"
+        placeholder="Ek baar ki baat hai, ek chhota sa bandar jungle mein rehta tha..."></textarea>
 
-    <label for="quality">Video quality</label>
-    <select id="quality">
-      <option>720p</option>
-      <option>1080p</option>
-    </select>
+      <label for="duration">Video Duration</label>
+      <select id="duration">
+        <option value="30">30 seconds</option>
+        <option value="60" selected>1 minute</option>
+        <option value="120">2 minutes</option>
+        <option value="300">5 minutes</option>
+      </select>
 
-    <button onclick="makePlan()">Create Video Plan</button>
-    <div id="result" class="note"></div>
+      <label for="quality">Target Quality</label>
+      <select id="quality">
+        <option value="720p">720p HD</option>
+        <option value="1080p" selected>1080p Full HD</option>
+      </select>
+
+      <button id="planButton" type="button">Create Scene Plan</button>
+
+      <div id="planStatus" class="status" aria-live="polite"></div>
+      <div id="sceneResults"></div>
+
+      <button id="downloadPlan" class="secondary hidden" type="button">
+        Download Scene Plan JSON
+      </button>
+    </section>
+
+    <section class="panel" id="ai-image-panel">
+      <h2>🎨 AI Image Generator</h2>
+      <p class="hint">
+        Connect your Pollinations account to generate an image.
+        Image generation may use your available Pollen balance.
+      </p>
+
+      <label>Connect Account</label>
+
+      <!-- Replace the app-key value with your own public pk_ App Key -->
+      <polli-connect
+        id="polli-connect"
+        app-key="pk_HkYTfTgoKsTayLAE"
+        budget="1"
+        expiry="1">
+      </polli-connect>
+
+      <p id="connectStatus" class="status" aria-live="polite">
+        Connect your account, then enter an image prompt.
+      </p>
+
+      <label for="imagePrompt">Describe Your Image</label>
+      <textarea id="imagePrompt"
+        placeholder="Cute 3D cartoon baby elephant in a colorful jungle, children's animation, vibrant pastel colors"></textarea>
+
+      <button id="generateImage" type="button" disabled>
+        Generate AI Image
+      </button>
+
+      <p id="imageStatus" class="status" aria-live="polite"></p>
+
+      <img id="generatedImage" class="hidden" alt="Generated AI artwork">
+
+      <a id="downloadImage" class="download hidden"
+        href="#" download="ai-image.png">Download Image</a>
+    </section>
+
+    <section class="panel">
+      <h2>🖼️ Image to Video — Preview</h2>
+      <p class="hint">
+        Upload an image to preview it before planning your video.
+        This section does not create a moving video yet.
+      </p>
+
+      <label for="imageUpload">Choose an Image</label>
+      <input id="imageUpload" type="file" accept="image/*">
+
+      <img id="uploadedPreview" class="hidden" alt="Your uploaded image preview">
+
+      <p id="uploadStatus" class="status"></p>
+    </section>
+
+    <section class="panel">
+      <h2>🚀 Next Features</h2>
+      <p class="hint">
+        Planned features: Hindi AI voice, automatic subtitles, scene editing,
+        image-to-video generation and MP4 export. These features need to be
+        connected to suitable generation services before they can work.
+      </p>
+    </section>
   </main>
 
-  <main class="panel">
-    <h2>Image to Video</h2>
-    <input type="file" accept="image/*">
-    <p class="note">
-      Image upload option tayyar hai. AI animation feature
-      baad mein connect karna hoga.
-    </p>
-  </main>
+  <footer>
+    Free AI Video Studio · Built for creative ideas ❤️
+  </footer>
 
   <script>
-    function makePlan() {
-      const script = document.getElementById("script").value.trim();
-      const duration = document.getElementById("duration").value;
-      const quality = document.getElementById("quality").value;
-      const result = document.getElementById("result");
+    "use strict";
 
-      if (!script) {
-        result.textContent = "Pehle apni video script likhein.";
+    // SCRIPT TO VIDEO: create a downloadable scene plan.
+    let currentPlan = [];
+
+    const scriptInput = document.getElementById("scriptInput");
+    const planButton = document.getElementById("planButton");
+    const planStatus = document.getElementById("planStatus");
+    const sceneResults = document.getElementById("sceneResults");
+    const downloadPlan = document.getElementById("downloadPlan");
+
+    function splitIntoScenes(text, totalSeconds) {
+      const sentences = text
+        .replace(/\n+/g, " ")
+        .match(/[^.!?।]+[.!?।]?/g);
+
+      const cleanSentences = (sentences || [])
+        .map(sentence => sentence.trim())
+        .filter(Boolean);
+
+      if (cleanSentences.length === 0) {
+        return [];
+      }
+
+      const sceneCount = Math.min(
+        cleanSentences.length,
+        Math.max(1, Math.ceil(totalSeconds / 5))
+      );
+
+      const scenes = Array.from(
+        { length: sceneCount },
+        () => []
+      );
+
+      cleanSentences.forEach((sentence, index) => {
+        const sceneIndex = Math.min(
+          sceneCount - 1,
+          Math.floor(index * sceneCount / cleanSentences.length)
+        );
+
+        scenes[sceneIndex].push(sentence);
+      });
+
+      const sceneDuration = totalSeconds / sceneCount;
+
+      return scenes.map((parts, index) => ({
+        scene: index + 1,
+        duration_seconds: Math.round(sceneDuration),
+        narration: parts.join(" "),
+        visual_prompt:
+          "Create a visual for this story: " + parts.join(" ") +
+          ". Colorful cinematic animation, clear composition."
+      }));
+    }
+
+    planButton.addEventListener("click", () => {
+      const text = scriptInput.value.trim();
+      const totalSeconds = Number(
+        document.getElementById("duration").value
+      );
+      const quality = document.getElementById("quality").value;
+
+      if (!text) {
+        planStatus.textContent = "Please enter your script first.";
+        sceneResults.replaceChildren();
+        downloadPlan.classList.add("hidden");
         return;
       }
 
-      const scenes = script.split(/[.!?।\n]+/)
-        .map(s => s.trim()).filter(Boolean);
+      currentPlan = splitIntoScenes(text, totalSeconds);
 
-      result.innerHTML = "<h3>Video Plan Ready!</h3>" +
-        "<p>Duration: " + duration + "</p>" +
-        "<p>Quality target: " + quality + "</p>" +
-        "<p>Total scenes: " + scenes.length + "</p>";
+      sceneResults.replaceChildren();
 
-      scenes.forEach((scene, i) => {
-        const p = document.createElement("p");
-        p.textContent = "Scene " + (i + 1) + ": " + scene;
-        result.appendChild(p);
+      currentPlan.forEach(scene => {
+        const card = document.createElement("div");
+        card.className = "scene";
+
+        const heading = document.createElement("strong");
+        heading.textContent =
+          "Scene " + scene.scene +
+          " · " + scene.duration_seconds + " seconds";
+
+        const narration = document.createElement("p");
+        narration.textContent = scene.narration;
+
+        const promptLabel = document.createElement("p");
+        promptLabel.textContent = "Visual prompt: " + scene.visual_prompt;
+
+        card.append(heading, narration, promptLabel);
+        sceneResults.appendChild(card);
       });
 
-      const download = document.createElement("button");
-      download.textContent = "Download Video Plan";
-      download.onclick = () => {
-        const blob = new Blob(
-          [JSON.stringify({script, duration, quality, scenes}, null, 2)],
-          {type: "application/json"}
-        );
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "video-plan.json";
-        a.click();
-        URL.revokeObjectURL(url);
-      };
-      result.appendChild(download);
+      currentPlan = currentPlan.map(scene => ({
+        ...scene,
+        target_quality: quality
+      }));
+
+      planStatus.textContent =
+        "Created " + currentPlan.length +
+        " scenes. This is a scene plan, not a rendered video.";
+
+      downloadPlan.classList.remove("hidden");
+    });
+
+    downloadPlan.addEventListener("click", () => {
+      if (!currentPlan.length) return;
+
+      const blob = new Blob(
+        [JSON.stringify(currentPlan, null, 2)],
+        { type: "application/json" }
+      );
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "video-scene-plan.json";
+      link.click();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+
+    // POLLINATIONS CONNECT: obtain a user-authorized API key.
+    const connectElement = document.getElementById("polli-connect");
+    const connectStatus = document.getElementById("connectStatus");
+    const generateButton = document.getElementById("generateImage");
+    const imageStatus = document.getElementById("imageStatus");
+    const generatedImage = document.getElementById("generatedImage");
+    const downloadImage = document.getElementById("downloadImage");
+    const imagePrompt = document.getElementById("imagePrompt");
+
+    let userApiKey = null;
+    let imageRequestNumber = 0;
+
+    function updateConnection(apiKey) {
+      userApiKey = apiKey || null;
+      generateButton.disabled = !userApiKey;
+
+      connectStatus.textContent = userApiKey
+        ? "Connected. You can generate an image."
+        : "Not connected. Use the Connect button above.";
     }
+
+    customElements.whenDefined("polli-connect")
+      .then(() => {
+        connectElement.addEventListener("change", () => {
+          updateConnection(connectElement.apiKey);
+        });
+
+        // Check if a connection already exists.
+        updateConnection(connectElement.apiKey);
+      })
+      .catch(() => {
+        connectStatus.textContent =
+          "Could not load the Connect component. Check your internet connection.";
+      });
+
+    // IMAGE GENERATION
+    generateButton.addEventListener("click", async () => {
+      const prompt = imagePrompt.value.trim();
+
+      if (!userApiKey) {
+        imageStatus.textContent = "Please connect your account first.";
+        return;
+      }
+
+      if (!prompt) {
+        imageStatus.textContent = "Please enter an image description.";
+        return;
+      }
+
+      const requestNumber = ++imageRequestNumber;
+
+      generateButton.disabled = true;
+      imageStatus.textContent =
+        "Generating image... Please wait. This may take some time.";
+
+      generatedImage.classList.add("hidden");
+      downloadImage.classList.add("hidden");
+
+      try {
+        const url =
+          "https://gen.pollinations.ai/image/" +
+          encodeURIComponent(prompt) +
+          "?model=flux&width=1024&height=1024";
+
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Authorization": "Bearer " + userApiKey
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            "Image service returned status " + response.status +
+            ". Check your account, available Pollen and service limits."
+          );
+        }
+
+        const imageBlob = await response.blob();
+
+        if (!imageBlob.type.startsWith("image/")) {
+          throw new Error("The service did not return an image.");
+        }
+
+        const imageUrl = URL.createObjectURL(imageBlob);
+
+        if (requestNumber !== imageRequestNumber) {
+          URL.revokeObjectURL(imageUrl);
+          return;
+        }
+
+        generatedImage.src = imageUrl;
+        generatedImage.classList.remove("hidden");
+
+        downloadImage.href = imageUrl;
+        downloadImage.classList.remove("hidden");
+
+        imageStatus.textContent = "Image generated successfully!";
+      } catch (error) {
+        imageStatus.textContent =
+          "Generation failed: " + error.message +
+          " If this continues, check the official Pollinations documentation.";
+      } finally {
+        if (requestNumber === imageRequestNumber) {
+          generateButton.disabled = !userApiKey;
+        }
+      }
+    });
+
+    // IMAGE UPLOAD PREVIEW
+    const imageUpload = document.getElementById("imageUpload");
+    const uploadedPreview = document.getElementById("uploadedPreview");
+    const uploadStatus = document.getElementById("uploadStatus");
+
+    let uploadedImageUrl = null;
+
+    imageUpload.addEventListener("change", () => {
+      const file = imageUpload.files[0];
+
+      if (uploadedImageUrl) {
+        URL.revokeObjectURL(uploadedImageUrl);
+        uploadedImageUrl = null;
+      }
+
+      if (!file) {
+        uploadedPreview.classList.add("hidden");
+        uploadStatus.textContent = "";
+        return;
+      }
+
+      if (!file.type.startsWith("image/")) {
+        uploadStatus.textContent = "Please choose a valid image file.";
+        uploadedPreview.classList.add("hidden");
+        return;
+      }
+
+      uploadedImageUrl = URL.createObjectURL(file);
+      uploadedPreview.src = uploadedImageUrl;
+      uploadedPreview.classList.remove("hidden");
+      uploadStatus.textContent =
+        "Image ready for preview. Video generation is not connected yet.";
+    });
   </script>
 </body>
 </html>
-
